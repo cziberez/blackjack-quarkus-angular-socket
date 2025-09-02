@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {BlackjackService} from './blackjack.service';
-import {Observable, timer} from 'rxjs';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-blackjack',
@@ -16,18 +16,30 @@ export class BlackjackComponent implements OnInit {
   playerCards: string[] = [];
   dealerCards: string[] = [];
 
-  constructor(protected gameService: BlackjackService) {
-  }
+  constructor(protected gameService: BlackjackService) {}
 
   ngOnInit() {
     this.gameService.connect();
     this.gameState$ = this.gameService.gameState$;
+
     this.gameState$.subscribe(game => {
+
+      // Új játék kezdésekor reseteljük a kézlapokat
+      if (game.playerHand.length === 2 && this.playerCards.length !== 2) {
+        this.playerCards = [];
+      }
+      if (game.dealerHand.length === 2 && this.dealerCards.length !== 2) {
+        this.dealerCards = [];
+      }
+
+      // Animate player cards
       this.gameService.animateCards(this.playerCards, game.playerHand, () => {
-        game.playerScore = this.calculateHand(this.playerCards);
+        game.playerScore = this.gameService.calculateHand(this.playerCards);
       });
+
+      // Animate dealer cards
       this.gameService.animateCards(this.dealerCards, game.dealerHand, () => {
-        game.dealerScore = this.calculateHand(this.dealerCards);
+        game.dealerScore = this.gameService.calculateHand(this.dealerCards);
       });
     });
   }
@@ -51,16 +63,11 @@ export class BlackjackComponent implements OnInit {
   getSuitSymbol(card: string): string {
     const suit = this.getSuit(card);
     switch (suit) {
-      case 'Hearts':
-        return '♥';
-      case 'Diamonds':
-        return '♦';
-      case 'Clubs':
-        return '♣';
-      case 'Spades':
-        return '♠';
-      default:
-        return '';
+      case 'Hearts': return '♥';
+      case 'Diamonds': return '♦';
+      case 'Clubs': return '♣';
+      case 'Spades': return '♠';
+      default: return '';
     }
   }
 
@@ -79,7 +86,6 @@ export class BlackjackComponent implements OnInit {
   get dealerScore(): number {
     return this.gameService.calculateHand(this.dealerCards);
   }
-
 
   restart() {
     window.location.reload();

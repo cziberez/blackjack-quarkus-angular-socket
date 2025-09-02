@@ -1,5 +1,5 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject, timer} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 interface GameState {
   playerHand: string[];
@@ -10,7 +10,7 @@ interface GameState {
   result?: string;
 }
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class BlackjackService {
   private socket!: WebSocket;
   private gameStateSubject = new BehaviorSubject<GameState>({
@@ -30,16 +30,35 @@ export class BlackjackService {
     this.socket.onmessage = (event) => {
       const data = event.data;
 
-      // Szimpla szövegparsing (szobában minden játékos ugyanazt látja)
-      if (data.startsWith("Player hand:") || data.startsWith("Game started!")) {
+      if (data.startsWith("Game started!")) {
+        // Reseteljük a teljes játékállapotot
+        this.gameStateSubject.next({
+          playerHand: [],
+          dealerHand: [],
+          playerScore: 0,
+          dealerScore: 0,
+          gameOver: false,
+          result: undefined
+        });
+
+      } else if (data.startsWith("Player hand:")) {
         const hand = this.parseHand(data);
         this.gameStateSubject.next({
           ...this.gameStateSubject.value,
           playerHand: hand,
           playerScore: this.calculateHand(hand)
         });
+
+      } else if (data.startsWith("Dealer state:")) {
+        const hand = this.parseHand(data);
+        this.gameStateSubject.next({
+          ...this.gameStateSubject.value,
+          dealerHand: hand,
+          dealerScore: this.calculateHand(hand)
+        });
+
       } else if (data.startsWith("Dealer hand:")) {
-        const hand = this.parseDealerHand(data);
+        const hand = this.parseHand(data);
         const result = this.parseResult(data);
         this.gameStateSubject.next({
           ...this.gameStateSubject.value,
@@ -48,6 +67,7 @@ export class BlackjackService {
           gameOver: data.includes("Result:") || data.includes("Game over!"),
           result
         });
+
       } else if (data.startsWith("Game over!")) {
         const result = data.replace("Game over! ", "");
         this.gameStateSubject.next({
@@ -78,17 +98,12 @@ export class BlackjackService {
     return match && match[1] ? match[1].split(',').map(s => s.trim()) : [];
   }
 
-  private parseDealerHand(data: string): string[] {
-    const match = data.match(/Dealer hand: \[(.*)]/);
-    return match && match[1] ? match[1].split(',').map(s => s.trim()) : [];
-  }
-
   private parseResult(data: string): string {
     const match = data.match(/Result: (.*)/);
     return match ? match[1].trim() : '';
   }
 
-  calculateHand(hand: string[]): number {
+  public calculateHand(hand: string[]): number {
     let sum = 0, aces = 0;
     hand.forEach(card => {
       const value = card.split(' ')[0];
@@ -102,21 +117,16 @@ export class BlackjackService {
       sum -= 10;
       aces--;
     }
-    if (sum === 21) {
-      this.sendStand();
-    }
     return sum;
   }
 
-  animateCards(current: string[], target: string[], updateScore?: () => void) {
+  public animateCards(current: string[], target: string[], updateScore?: () => void) {
     const newCards = target.slice(current.length);
     newCards.forEach((card, i) => {
-      timer(i * 1000).subscribe(() => {
+      setTimeout(() => {
         current.push(card);
-        if (updateScore) {
-          updateScore();
-        }
-      });
+        if (updateScore) updateScore();
+      }, i * 500); // vagy 1000 ms
     });
   }
 }

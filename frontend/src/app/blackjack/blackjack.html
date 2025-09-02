@@ -1,8 +1,9 @@
-<div class="blackjack-container" *ngIf="gameState$ | async as game">
-  <h2>Blackjack Game</h2>
+<div class="casino-table" *ngIf="gameState$ | async as game">
+  <h2 class="table-title">Blackjack Casino</h2>
 
   <div class="hand-container">
-    <div class="hand">
+    <!-- Player Hand -->
+    <div class="hand player-hand">
       <h3>Player ({{ playerScore }})</h3>
       <div class="cards">
         <div class="card {{getSuitClass(card)}}" *ngFor="let card of playerCards">
@@ -13,7 +14,7 @@
     </div>
 
     <!-- Dealer Hand -->
-    <div class="hand">
+    <div class="hand dealer-hand">
       <h3>Dealer ({{ dealerScore }})</h3>
       <div class="cards">
         <div class="card {{getSuitClass(card)}}" *ngFor="let card of dealerCards">
@@ -25,12 +26,12 @@
   </div>
 
   <div class="controls" *ngIf="!game.gameOver">
-    <button (click)="hit()">Hit</button>
-    <button (click)="stand()">Stand</button>
+    <button class="hit-btn" (click)="hit()">Hit</button>
+    <button class="stand-btn" (click)="stand()">Stand</button>
   </div>
 
   <div class="result" *ngIf="game.gameOver">
-    <h3>{{ game.result }}</h3>
-    <button (click)="restart()">New Game</button>
-  </div>
+  <h3>{{ game.result }}</h3>
+  <button class="new-game-btn" (click)="restart()">New Game</button>
+</div>
 </div>
