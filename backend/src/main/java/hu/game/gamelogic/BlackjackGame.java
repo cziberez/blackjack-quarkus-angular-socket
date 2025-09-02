@@ -8,7 +8,7 @@ public class BlackjackGame {
 
     private final List<Card> deck;
     private final List<Card> playerHand;
-        private final List<Card> dealerHand;
+    private final List<Card> dealerHand;
     private boolean gameOver;
 
     public BlackjackGame() {
@@ -18,7 +18,6 @@ public class BlackjackGame {
         gameOver = false;
         initDeck();
         shuffleDeck();
-        dealInitialCards();
     }
 
     private void initDeck() {
@@ -35,15 +34,16 @@ public class BlackjackGame {
         Collections.shuffle(deck);
     }
 
-    private void dealInitialCards() {
-        playerHand.add(drawCard());
-        dealerHand.add(drawCard());
-        playerHand.add(drawCard());
-        dealerHand.add(drawCard());
-    }
-
     private Card drawCard() {
         return deck.remove(deck.size() - 1);
+    }
+
+    public void startGame() {
+        // Csak itt adjuk a kezdő lapokat
+        playerHand.add(drawCard());
+        dealerHand.add(drawCard());
+        playerHand.add(drawCard());
+        dealerHand.add(drawCard());
     }
 
     public List<Card> getPlayerHand() {

@@ -1,6 +1,7 @@
 package hu.game.socket;
 
 import hu.game.gamelogic.BlackjackGame;
+import hu.game.gamelogic.Card;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
@@ -8,7 +9,7 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 
-import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ServerEndpoint("/game")
@@ -21,7 +22,23 @@ public class BlackjackSocket {
     public void onOpen(Session session) {
         BlackjackGame game = new BlackjackGame();
         sessions.put(session, game);
-        session.getAsyncRemote().sendText("Game started! Player hand: " + game.getPlayerHand());
+
+        // Küldünk csak "Game started!" üzenetet
+        session.getAsyncRemote().sendText("Game started!");
+
+        // Dealeljük a kezdő lapokat
+        game.startGame();
+        session.getAsyncRemote().sendText("Player hand: " + game.getPlayerHand());
+        List<Card> dealerHand = game.getDealerHand();
+        session.getAsyncRemote().sendText("Dealer state: " + dealerHand);
+        checkBadLuck(session, game, dealerHand);
+    }
+
+    private void checkBadLuck(Session session, BlackjackGame game, List<Card> dealerHand) {
+        int dealerScore = game.calculateHand(dealerHand);
+        if (dealerScore == 21) {
+            session.getAsyncRemote().sendText("Dealer hand: " + game.getDealerHand() + ". Result: " + game.getResult());
+        }
     }
 
     @OnClose
@@ -30,7 +47,7 @@ public class BlackjackSocket {
     }
 
     @OnMessage
-    public void onMessage(Session session, String message) throws IOException {
+    public void onMessage(Session session, String message) {
         BlackjackGame game = sessions.get(session);
         if (game == null) {
             return;
@@ -42,7 +59,6 @@ public class BlackjackSocket {
                 session.getAsyncRemote().sendText("Player hand: " + game.getPlayerHand());
                 if (game.isGameOver()) {
                     session.getAsyncRemote().sendText("Game over! " + game.getResult());
-                    session.close();
                 }
                 break;
             case "stand":
@@ -50,7 +66,7 @@ public class BlackjackSocket {
                 session.getAsyncRemote().sendText("Dealer hand: " + game.getDealerHand() + ". Result: " + game.getResult());
                 break;
             default:
-                session.getAsyncRemote().sendText("Unknown command! Use hit, stand, or split.");
+                session.getAsyncRemote().sendText("Unknown command! Use hit or stand.");
         }
     }
 }
