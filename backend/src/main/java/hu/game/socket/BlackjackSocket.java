@@ -31,14 +31,20 @@ public class BlackjackSocket {
         session.getAsyncRemote().sendText("Player hand: " + game.getPlayerHand());
         List<Card> dealerHand = game.getDealerHand();
         session.getAsyncRemote().sendText("Dealer state: " + dealerHand);
-        checkBadLuck(session, game, dealerHand);
+        boolean badLuck = checkBadLuck(session, game, dealerHand);
+        if (!badLuck) {
+            checkWinningHand(game, session);
+        }
     }
 
-    private void checkBadLuck(Session session, BlackjackGame game, List<Card> dealerHand) {
+    private boolean checkBadLuck(Session session, BlackjackGame game, List<Card> dealerHand) {
+        boolean badLuck = false;
         int dealerScore = game.calculateHand(dealerHand);
         if (dealerScore == 21) {
-            session.getAsyncRemote().sendText("Dealer hand: " + game.getDealerHand() + ". Result: " + game.getResult());
+            session.getAsyncRemote().sendText("Game over! " + game.getResult());
+            badLuck = true;
         }
+        return badLuck;
     }
 
     @OnClose
@@ -59,6 +65,8 @@ public class BlackjackSocket {
                 session.getAsyncRemote().sendText("Player hand: " + game.getPlayerHand());
                 if (game.isGameOver()) {
                     session.getAsyncRemote().sendText("Game over! " + game.getResult());
+                } else {
+                    checkWinningHand(game, session);
                 }
                 break;
             case "stand":
@@ -67,6 +75,19 @@ public class BlackjackSocket {
                 break;
             default:
                 session.getAsyncRemote().sendText("Unknown command! Use hit or stand.");
+        }
+    }
+
+    private void checkWinningHand(BlackjackGame game, Session session) {
+        int playerScore = game.calculateHand(game.getPlayerHand());
+        if (playerScore == 21) {
+            session.getAsyncRemote().sendText("Dealer hand: " + game.getDealerHand() + ". Result: " + game.getResult());
+        }
+        int dealerScore = game.calculateHand(game.getDealerHand());
+        if (dealerScore >= 17) {
+            if (playerScore > dealerScore && playerScore < 22) {
+                session.getAsyncRemote().sendText("Dealer hand: " + game.getDealerHand() + ". Result: " + game.getResult());
+            }
         }
     }
 }
