@@ -43,7 +43,6 @@ public class BlackjackGame {
         playerHand.add(drawCard());
         dealerHand.add(drawCard());
         playerHand.add(drawCard());
-        dealerHand.add(drawCard());
     }
 
     public List<Card> getPlayerHand() {

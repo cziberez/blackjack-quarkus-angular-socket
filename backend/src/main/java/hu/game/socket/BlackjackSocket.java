@@ -31,20 +31,7 @@ public class BlackjackSocket {
         session.getAsyncRemote().sendText("Player hand: " + game.getPlayerHand());
         List<Card> dealerHand = game.getDealerHand();
         session.getAsyncRemote().sendText("Dealer state: " + dealerHand);
-        boolean badLuck = checkBadLuck(session, game, dealerHand);
-        if (!badLuck) {
-            checkWinningHand(game, session);
-        }
-    }
-
-    private boolean checkBadLuck(Session session, BlackjackGame game, List<Card> dealerHand) {
-        boolean badLuck = false;
-        int dealerScore = game.calculateHand(dealerHand);
-        if (dealerScore == 21) {
-            session.getAsyncRemote().sendText("Game over! " + game.getResult());
-            badLuck = true;
-        }
-        return badLuck;
+        checkWinningHand(game, session);
     }
 
     @OnClose
