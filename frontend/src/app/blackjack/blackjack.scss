@@ -3,18 +3,19 @@
   max-width: 900px;
   margin: 2rem auto;
   padding: 2rem;
-  background: radial-gradient(circle at top, #006400, #004d00);
+  background: radial-gradient(circle at top, #1b9c3f, #0f6a29);
   border-radius: 20px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.7);
+  box-shadow: 0 0 35px rgba(0,0,0,0.8);
   color: white;
   font-family: 'Arial Black', sans-serif;
 }
 
 .table-title {
   text-align: center;
-  font-size: 2rem;
+  font-size: 2.5rem;
   margin-bottom: 1.5rem;
-  text-shadow: 2px 2px #000;
+  text-shadow: 3px 3px #000;
+  letter-spacing: 2px;
 }
 
 /* HANDS */
@@ -27,7 +28,7 @@
 }
 
 .hand {
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.25);
   padding: 1rem;
   border-radius: 15px;
   min-width: 250px;
@@ -37,6 +38,7 @@
 .hand h3 {
   text-align: center;
   margin-bottom: 0.5rem;
+  font-size: 1.3rem;
 }
 
 /* CARDS */
@@ -48,8 +50,8 @@
 }
 
 .card {
-  width: 60px;
-  height: 90px;
+  width: 70px;
+  height: 100px;
   border-radius: 12px;
   background: white;
   color: black;
@@ -62,17 +64,18 @@
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   transform: translateY(200px) rotateY(90deg);
   opacity: 0;
-  animation: throwCard 0.6s forwards;
+  animation: throwCard 1s forwards;
   text-align: center;
-  transition: transform 0.3s;
+  transition: transform 0.4s ease, box-shadow 0.3s;
 }
 
-.card:hover {
-  transform: translateY(-10px) rotateY(0deg) scale(1.1);
+.card:hover:not(.facedown) {
+  transform: translateY(-10px) scale(1.1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.7);
 }
 
 .card .suit {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
 }
 
 .card.hearts, .card.diamonds {
@@ -81,6 +84,28 @@
 
 .card.spades, .card.clubs {
   color: black;
+}
+
+/* Facedown card */
+.card.facedown {
+  background: linear-gradient(135deg, #2b2b2b, #444);
+  color: transparent;
+  box-shadow: inset 0 0 15px rgba(255,255,255,0.2);
+  position: relative;
+}
+
+.card.facedown::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 8px;
+  background: repeating-linear-gradient(
+      45deg,
+      #666,
+      #666 10px,
+      #333 10px,
+      #333 20px
+  );
 }
 
 @keyframes throwCard {
@@ -96,21 +121,39 @@
 }
 
 .controls button {
-  padding: 0.8rem 2rem;
+  padding: 0.8rem 2.2rem;
   margin: 0.5rem;
-  font-size: 1rem;
+  font-size: 1.1rem;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   background: #ff6f61;
   color: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   transition: all 0.3s ease;
 }
 
-.controls button:hover {
+.controls button:hover:not(:disabled) {
   background: #ff3b2e;
   transform: scale(1.1);
+}
+
+.controls button:disabled {
+  background: #bbb;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* RESULT */
+.result {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.result h3 {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
 }
 
 .result button {
@@ -124,15 +167,15 @@
 
 /* NEW GAME BUTTON */
 .new-game-btn {
-  padding: 0.8rem 2rem;
+  padding: 0.8rem 2.2rem;
   margin-top: 1rem;
-  font-size: 1rem;
+  font-size: 1.1rem;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   background: #4caf50;
   color: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   transition: all 0.3s ease;
 }
 
@@ -153,8 +196,8 @@
   }
 
   .card {
-    width: 50px;
-    height: 75px;
+    width: 55px;
+    height: 80px;
     padding: 0.3rem;
   }
 

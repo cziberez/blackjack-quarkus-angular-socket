@@ -15,23 +15,28 @@
 
     <!-- Dealer Hand -->
     <div class="hand dealer-hand">
-      <h3>Dealer ({{ dealerScore }})</h3>
+      <h3>Dealer ({{ dealerScoreDisplay }})</h3>
       <div class="cards">
-        <div class="card {{getSuitClass(card)}}" *ngFor="let card of dealerCards">
-          <div class="value">{{ getValue(card) }}</div>
-          <div class="suit">{{ getSuitSymbol(card) }}</div>
+        <div
+          class="card"
+          *ngFor="let card of dealerCards; let i = index"
+          [class.facedown]="i === 1 && !game.gameOver">
+          <div class="value" *ngIf="!(i === 1 && !game.gameOver)">{{ getValue(card) }}</div>
+          <div class="suit" *ngIf="!(i === 1 && !game.gameOver)">{{ getSuitSymbol(card) }}</div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Controls -->
   <div class="controls" *ngIf="!game.gameOver">
-    <button class="hit-btn" (click)="hit()">Hit</button>
-    <button class="stand-btn" (click)="stand()">Stand</button>
+    <button class="hit-btn" (click)="hit()" [disabled]="isAnimating">Hit</button>
+    <button class="stand-btn" (click)="stand()" [disabled]="isAnimating">Stand</button>
   </div>
 
-  <div class="result" *ngIf="game.gameOver">
-  <h3>{{ game.result }}</h3>
-  <button class="new-game-btn" (click)="restart()">New Game</button>
-</div>
+  <!-- Result -->
+  <div class="result" *ngIf="game.gameOver && dealerAnimationFinished">
+    <h3>{{ game.result }}</h3>
+    <button class="new-game-btn" (click)="restart()">New Game</button>
+  </div>
 </div>
