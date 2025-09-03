@@ -25,8 +25,12 @@ export class BlackjackService {
   gameState$ = this.gameStateSubject.asObservable();
 
   connect() {
-    this.socket = new WebSocket('ws://localhost:8080/game');
-
+    const isRender = window.location.hostname.includes("onrender.com");
+    this.socket = new WebSocket(
+      isRender
+        ? `wss://${window.location.host}/game`
+        : "ws://localhost:8080/game"
+    );
     this.socket.onmessage = (event) => {
       const data = event.data;
 
